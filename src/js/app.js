@@ -3,20 +3,19 @@ App = {
   contracts: {},
 
   init: async function() {
-    // Load pets.
-    $.getJSON('../pets.json', function(data) {
-      var petsRow = $('#petsRow');
-      var petTemplate = $('#petTemplate');
+    // Load candidates.
+    $.getJSON('../candidates.json', function(data) {
+      var candsRow = $('#candsRow');
+      var candTemplate = $('#candTemplate');
 
       for (i = 0; i < data.length; i ++) {
-        petTemplate.find('.panel-title').text(data[i].name);
-        petTemplate.find('img').attr('src', data[i].picture);
-        petTemplate.find('.pet-breed').text(data[i].breed);
-        petTemplate.find('.pet-age').text(data[i].age);
-        petTemplate.find('.pet-location').text(data[i].location);
-        petTemplate.find('.btn-adopt').attr('data-id', data[i].id);
-
-        petsRow.append(petTemplate.html());
+        candTemplate.find('.panel-title').text(data[i].name);
+        candTemplate.find('img').attr('src', data[i].picture);
+        candTemplate.find('.cand-course').text(data[i].course);
+        candTemplate.find('.cand-num').text(data[i].num);
+        candTemplate.find('.cand-desc').text(data[i].desc);
+        candTemplate.find('.cand-vote').attr('data-id', data[i].id);
+        candsRow.append(candTemplate.html());
       }
     });
 
@@ -40,19 +39,19 @@ App = {
   },
 
   bindEvents: function() {
-    $(document).on('click', '.btn-adopt', App.handleAdopt);
+    $(document).on('click', '.btn-vote', App.handleVote);
   },
 
-  markAdopted: function() {
+  markVoted: function() {
     /*
      * Replace me...
      */
   },
 
-  handleAdopt: function(event) {
+  handleVote: function(event) {
     event.preventDefault();
 
-    var petId = parseInt($(event.target).data('id'));
+    var candId = parseInt($(event.target).data('id'));
 
     /*
      * Replace me...
