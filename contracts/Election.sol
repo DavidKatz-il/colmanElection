@@ -1,8 +1,8 @@
 pragma solidity >=0.4.22 <0.8.0;
 
-import "./openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
+import "./openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
-contract Election is ERC721 {
+contract Election is ERC20 {
     struct Candidate {
         uint id;
         string name;
@@ -24,7 +24,7 @@ contract Election is ERC721 {
         string memory _name,
         string memory _symbol,
         uint256 initialSupply
-        ) ERC721(_name, _symbol) {
+        ) ERC20(_name, _symbol) {
         _mint(msg.sender, initialSupply);
 	}
 
