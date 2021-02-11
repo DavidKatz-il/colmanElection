@@ -2,25 +2,16 @@
   {
     "id": 1,
     "name": "מיכה ברשפ",
-    "picture": "images/mica.jpg",
-    "num": 3534273,
-    "course": "בלוקציין",
-    "desc": "לימוד יסודות הבלוקציין"
+    "picture": "images/mica.jpg"
   },
   {
     "id": 2,
     "name": "אליהו חלסצ'י",
-    "picture": "images/eli.jpg",
-    "num": 6394693,
-    "course": "פיתוח תוכנה מתקדם",
-    "desc": "תבניות עיצוב בשפת ג'אווה"
+    "picture": "images/eli.jpg"
   },
   {
     "id": 3,
     "name": "ז'אק אמסלם",
-    "picture": "images/zack.jpg",
-    "num": 9748635,
-    "course": "אפיון חויית משתמש",
-    "desc": "גשטלט ונורמן"
+    "picture": "images/zack.jpg"
   }
 ]

@@ -14,5 +14,10 @@
   "license": "ISC",
   "devDependencies": {
     "lite-server": "^2.6.1"
+  },
+  "dependencies": {
+    "app-module-path": "^2.2.0",
+    "common-js": "^0.3.8",
+    "express": "^4.17.1"
   }
 }

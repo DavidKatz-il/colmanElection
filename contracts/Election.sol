@@ -6,6 +6,7 @@ contract Election is ERC20 {
     struct Candidate {
         uint id;
         string name;
+        string img;
         uint voteCount;
     }
     uint public duringTime;
@@ -28,9 +29,12 @@ contract Election is ERC20 {
         _mint(msg.sender, initialSupply);
 	}
 
-    function addCandidate (string memory _name) public {
-        candidatesCount ++;
-        candidates[candidatesCount] = Candidate(candidatesCount, _name, 0);
+    function addCandidate (
+        string memory _name,
+        string memory _img
+        ) public {
+        candidatesCount++;
+        candidates[candidatesCount] = Candidate(candidatesCount, _name, _img, 0);
     }
 
     function setFinishTime () public {

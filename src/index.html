@@ -18,38 +18,102 @@
     <![endif]-->
   </head>
   <body>
-    <div class="container">
-      <div class="row">
-        <div class="col-xs-12 col-sm-8 col-sm-push-2">
-          <h1 class="text-center">בחירות - מרצה השנה</h1>
-          <hr/>
-          <br/>
+    <div id="formAdmin" style="display: none;">
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-12 col-sm-8 col-sm-push-2">
+            <h1 id="title" class="text-center">דף ניהול למערכת בחירות</h1>
+            <br/>
+          </div>
         </div>
-      </div>
-      
-      <div id="candsRow" class="row">
-        <!-- PETS LOAD HERE -->
+        <br>
+        <br>
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label class="form-label" for="candPath">בחירת קובץ עם מועמדים</label>
+              <input type="file" class="form-control" id="candPath" />
+          </div>
+          </div>
+          <div class="col">
+              <p>סה"כ מועמדים: </p>
+              <p id="sumCand"></p>
+          </div>
+        </div>
+        <br>
+        <br>
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label class="form-label" for="form1">קביעת טיימר לסיום הבחירות -בדקות</label>
+              <input type="text" id="form1" class="form-control" />
+            </div>
+            <br>
+            <br>
+            <div class="text-center">
+                <button class="btn btn-primary btn-start" type="button" >התחל בחירות</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div id="candTemplate" style="display: none;">
-      <div class="col-sm-6 col-md-4 col-lg-3">
-        <div class="panel panel-default panel-cand">
-          <div class="panel-heading">
-            <h3 class="panel-title">Scrappy</h3>
+    <div id="formVote" style="display: none;">
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-12 col-sm-8 col-sm-push-2">
+            <h1 id="title" class="text-center">בחירות - מרצה השנה</h1>
+            <br/>
           </div>
-          <div class="panel-body">
-            <img alt="140x140" data-src="holder.js/140x140" class="img-rounded img-center" style="width: 100%;" src="https://animalso.com/wp-content/uploads/2017/01/Golden-Retriever_6.jpg" data-holder-rendered="true">
-            <br/><br/>
-            <strong>מס' קורס</strong>: <span class="cand-num">3</span><br/>
-            <strong>קורס</strong>: <span class="cand-course">Golden Retriever</span><br/>
-            <strong>תיאור</strong>: <span class="cand-desc">Warren, MI</span><br/><br/>
-            <button class="btn btn-default btn-vote" type="button" data-id="0">בחר</button>
+        </div>
+        <div id="candsRow" class="row">
+          <!-- PETS LOAD HERE -->
+        </div>
+      </div>
+      <div id="candTemplate" style="display: none;">
+        <div class="col-sm-6 col-md-4 col-lg-3">
+          <div class="panel panel-default panel-cand">
+            <div class="panel-heading">
+              <h3 class="panel-title">Scrappy</h3>
+            </div>
+            <div class="panel-body">
+              <img alt="140x140" data-src="holder.js/140x140" class="img-rounded img-center" style="width: 100%;" src="https://animalso.com/wp-content/uploads/2017/01/Golden-Retriever_6.jpg" data-holder-rendered="true">
+              <br/><br/>
+              <strong>מספר הצבעות</strong>: <span class="cand-voteCount">0</span><br/>
+              <br/>
+              <button class="btn btn-default btn-vote" type="button" data-id="0">בחר</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="formAlreadyVote" style="display: none;">
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-12 col-sm-8 col-sm-push-2">
+            <h1 id="title" class="text-center">כבר בחרת - לא ניתן לבחור פעמיים</h1>
+            <br/>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="formLoader" style="display: none;">
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-12 col-sm-8 col-sm-push-2">
+            <h1 id="title" class="text-center">...אנא המתן</h1>
+            <br/>
           </div>
         </div>
       </div>
     </div>
 
+    <br><br>
+    <div>
+      <p id="accountAddress" class="text-center"></p>
+    </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
