@@ -58,7 +58,7 @@ contract Election is ERC20 {
         voters[msg.sender] = true;
 
         // update candidate vote Count
-        candidates[_candidateId].voteCount ++;
+        candidates[_candidateId].voteCount++;
         // trigger voted event
         emit votedEvent(_candidateId);
     }

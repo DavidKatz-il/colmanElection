@@ -67,25 +67,22 @@ App = {
   },
     
   uploadCands: function() {
-    var electionInstance;
     const candPath = document.getElementById("candPath").files[0];
     $.getJSON(candPath.name, function(data) {
-      console.log(data);
-     for (i = 0; i < data.length; i++) {
-       console.log(i);
-       var name = data[i].name;
-       var picture = data[i].picture;
-       console.log(name);
-       App.contracts.Election.deployed().then(function(instance) {
-         return instance.addCandidate(name, picture, { from: App.account });
-       });
-       $('#sumCand').text(i+1);
-     }
+      App.contracts.Election.deployed().then(function(instance) {
+        for (i = 0; i < data.length; i++) {
+          var name = data[i].name;
+          var img = data[i].img;
+          instance.addCandidate(name, img, { from: App.account });
+        }
+        return instance.candidatesCount();
+      }).then(function(candidatesCount) {
+        $('#sumCand').text(candidatesCount);
+      });
    });
   },
 
   start: function(event) {
-    console.log("start");
     event.preventDefault();
     $("#formAdmin").hide();
     $("#formLoader").show();
@@ -94,18 +91,14 @@ App = {
  
  loadCands: function() {
   var electionInstance;
-  console.log("loadCands");
   App.contracts.Election.deployed().then(function(instance) {
     electionInstance = instance;
     return electionInstance.candidatesCount();
   }).then(function(candidatesCount) {
-    console.log(candidatesCount);
     var candsRow = $('#candsRow');
     var candTemplate = $('#candTemplate');
     for (var i = 1; i <= candidatesCount; i++) {
-      console.log(i);
       electionInstance.candidates(i).then(function(candidate) {
-        console.log(candidate);
         var id = candidate[0];
         var name = candidate[1];
         var img = candidate[2];
@@ -113,18 +106,19 @@ App = {
         candTemplate.find('.panel-title').text(name);
         candTemplate.find('img').attr('src', img);
         candTemplate.find('.cand-voteCount').text(voteCount);
-        candTemplate.find('.cand-vote').attr('data-id', id);
+        candTemplate.find('.btn-vote').attr('data-id', id);
         candsRow.append(candTemplate.html());
       });
     }
     return electionInstance.voters(App.account);
   }).then(function(hasVoted) {
     // Do not allow a user to vote
+    $("#formLoader").hide();
     if (hasVoted) {
-      formVote.hide();
       $("#formAlreadyVote").show();
+    } else {
+      $("#formVote").show(); 
     }
-    $("#formVote").show();
   }).catch(function(error) {
     console.warn(error);
   });
@@ -133,9 +127,18 @@ App = {
  handleVote: function(event) {
   event.preventDefault();
   var candId = parseInt($(event.target).data('id'));
+  console.log(candId);
   App.contracts.Election.deployed().then(function(instance) {
     return instance.vote(candId, { from: App.account });
   }).then(function(result) {
+    App.contracts.Election.deployed().then(async (instance) => {
+      console.log(instance.address);
+      console.log(App.account);
+      await instance.transfer(instance.address, 100, { from: App.account });
+    })
+    .catch(function(err) {
+      console.error(err);
+    });
     // Wait for votes to update
     $("#formVote").hide();
     $("#formLoader").show();
@@ -143,7 +146,6 @@ App = {
     console.error(err);
   });
 },
-
 };
 
 $(function() {

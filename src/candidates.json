@@ -2,16 +2,16 @@
   {
     "id": 1,
     "name": "מיכה ברשפ",
-    "picture": "images/mica.jpg"
+    "img": "images/mica.jpg"
   },
   {
     "id": 2,
     "name": "אליהו חלסצ'י",
-    "picture": "images/eli.jpg"
+    "img": "images/eli.jpg"
   },
   {
     "id": 3,
     "name": "ז'אק אמסלם",
-    "picture": "images/zack.jpg"
+    "img": "images/zack.jpg"
   }
 ]
