@@ -9,14 +9,16 @@ contract Election is ERC20 {
         string img;
         uint voteCount;
     }
-    uint public duringTime;
+
     uint public timeStart;
-    mapping(address => bool) public voters;
-    mapping(uint => Candidate) public candidates;
-    
+    uint public timeEnd;
     uint public candidatesCount;
     bool public votingIsStarted;
-    bool public isFinishTime;
+    bool public votingIsFinished;
+
+    mapping(address => bool) public allowVoters;
+    mapping(address => bool) public voters;
+    mapping(uint => Candidate) public candidates;
     
     event votedEvent (
         uint indexed _candidateId
@@ -37,28 +39,41 @@ contract Election is ERC20 {
         candidates[candidatesCount] = Candidate(candidatesCount, _name, _img, 0);
     }
 
-    function setFinishTime () public {
-        isFinishTime = true;
+    function addAllowedVoter (
+        address _address
+        ) public {
+        allowVoters[_address] = true;
     }
 
-    function startVoting (uint _duringTime) public {
+    function setFinishTime () public {
+        votingIsFinished = true;
+    }
+
+    function startVoting(uint _duringTime) public {
         votingIsStarted = true;
         timeStart = block.timestamp;
-        duringTime = _duringTime;
+        timeEnd = block.timestamp + _duringTime;
     }
 
     function vote (uint _candidateId) public {
+        // require that it's still time to vote
+        require(timeEnd <= block.timestamp, "Time expired");
+
+        // require that they allowed to vote
+        require(allowVoters[msg.sender], "Not allowed to vote");
+
         // require that they haven't voted before
-        require(!voters[msg.sender]);
+        require(!voters[msg.sender], "Already voted");
 
         // require a valid candidate
-        require(_candidateId > 0 && _candidateId <= candidatesCount);
+        require(_candidateId > 0 && _candidateId <= candidatesCount, "Invalid candidate ID");
 
         // record that voter has voted
         voters[msg.sender] = true;
 
         // update candidate vote Count
         candidates[_candidateId].voteCount++;
+        
         // trigger voted event
         emit votedEvent(_candidateId);
     }
