@@ -47,46 +47,86 @@ App = {
       }).watch(function(error, event) {
         console.log("event triggered", event)
         // Reload when a new vote is recorded
-        App.render();
+        // App.render();
       });
     });
   },
 
   render: function() {
-    $("#formAdmin").show();
-    $("#formVote").hide();
-    $("#formAlreadyVote").hide();
-    $("#formLoader").hide();
-
+    var electionInstance;
+    var formLoader = $("#formLoader");
+    var formAdmin = $("#formAdmin");
+    var formVote = $("#formVote");
+    var formAlreadyVote = $("#formAlreadyVote");
+    
+    formLoader.show();   
+    formAdmin.hide();
+    formVote.hide();
+    formAlreadyVote.hide();
     web3.eth.getCoinbase(function(err, account) {
       if (err === null) {
         App.account = account;
-        $("#accountAddress").html("Your Account: " + account);
+        $("#accountAddress").html("כתובת החשבון שלך: " + account);
       }
+    });
+    App.contracts.Election.deployed().then(function(instance) {
+      electionInstance = instance;
+      return electionInstance.votingIsStarted();
+    }).then(function(votingIsStarted) {
+      if(votingIsStarted) {
+        App.contracts.Election.deployed().then(function(instance) {
+          electionInstance = instance;
+          return electionInstance.voters(App.account);
+        }).then(function(hasVoted) {
+          formLoader.hide();
+          if (hasVoted) {
+            formAlreadyVote.show();
+          } else {
+            App.loadCands();
+            formVote.show(); 
+          }
+        });   
+      } else { // Start Admin page if the voting didn't start
+        formLoader.hide();   
+        formAdmin.show();
+      }
+    }).catch(function(error) {
+      console.warn(error);
     });
   },
     
   uploadCands: function() {
-    const candPath = document.getElementById("candPath").files[0];
-    $.getJSON(candPath.name, function(data) {
+    const candsPath = document.getElementById("candsPath").files[0];
+    $.getJSON(candsPath.name, function(data) {
       App.contracts.Election.deployed().then(function(instance) {
         for (i = 0; i < data.length; i++) {
           var name = data[i].name;
           var img = data[i].img;
           instance.addCandidate(name, img, { from: App.account });
         }
-        return instance.candidatesCount();
-      }).then(function(candidatesCount) {
-        $('#sumCand').text(candidatesCount);
-      });
-   });
+      })
+     });
+  },
+
+  uploadAllowedVoters: function() {
+    const votersPath = document.getElementById("votersPath").files[0];
+    $.getJSON(votersPath.name, function(data) {
+      App.contracts.Election.deployed().then(function(instance) {
+        for (i = 0; i < data.length; i++) {
+          var address = data[i].address;
+          instance.addAllowedVoter(address, { from: App.account });
+        }
+      })
+     });
   },
 
   start: function(event) {
     event.preventDefault();
-    $("#formAdmin").hide();
-    $("#formLoader").show();
-    App.loadCands();
+    const timer = document.getElementById("timer").value;
+    App.contracts.Election.deployed().then(function(instance) {
+      instance.startVoting(timer, { from: App.account });
+    });
+    return App.render();
  },
  
  loadCands: function() {
@@ -110,15 +150,6 @@ App = {
         candsRow.append(candTemplate.html());
       });
     }
-    return electionInstance.voters(App.account);
-  }).then(function(hasVoted) {
-    // Do not allow a user to vote
-    $("#formLoader").hide();
-    if (hasVoted) {
-      $("#formAlreadyVote").show();
-    } else {
-      $("#formVote").show(); 
-    }
   }).catch(function(error) {
     console.warn(error);
   });
@@ -127,13 +158,10 @@ App = {
  handleVote: function(event) {
   event.preventDefault();
   var candId = parseInt($(event.target).data('id'));
-  console.log(candId);
   App.contracts.Election.deployed().then(function(instance) {
     return instance.vote(candId, { from: App.account });
   }).then(function(result) {
     App.contracts.Election.deployed().then(async (instance) => {
-      console.log(instance.address);
-      console.log(App.account);
       await instance.transfer(instance.address, 100, { from: App.account });
     })
     .catch(function(err) {
@@ -145,18 +173,14 @@ App = {
   }).catch(function(err) {
     console.error(err);
   });
+  alert('תודה רבה על ההצבעה');
 },
 };
 
-$(function() {
-  $(window).load(function() {
-    App.init();
-  });
-});
+$(function() { $(window).load(function() { App.init(); }); });
 
-$("#candPath").change(function(e) {
-  App.uploadCands();
-});
+$("#candsPath").change(function(e) { App.uploadCands(); });
+$("#votersPath").change(function(e) { App.uploadAllowedVoters(); });
 
 $(document).on('click', '.btn-start', App.start)
 $(document).on('click', '.btn-vote', App.handleVote)
