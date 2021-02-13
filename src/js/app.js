@@ -9,20 +9,20 @@ App = {
   },
 
   initWeb3: function() {
-    // TODO: refactor conditional
-    if (typeof web3 !== 'undefined') {
-      // If a web3 instance is already provided by Meta Mask.
-      App.web3Provider = web3.currentProvider;
-      web3 = new Web3(web3.currentProvider);
-    } else {
-      // Specify default instance if no web3 instance provided
+    if (window.ethereum) {
+      App.web3Provider = window.ethereum;
+      window.ethereum.enable();
+      web3 = new Web3(App.web3Provider);
+      return App.initContract();
+    }
+    else {
       App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
       web3 = new Web3(App.web3Provider);
+      return App.initContract();
     }
-    return App.initContract();
   },
 
-  initContract: function() {
+  initContract: async function() {
     $.getJSON("Election.json", function(election) {
       // Instantiate a new truffle contract from the artifact
       App.contracts.Election = TruffleContract(election);
@@ -31,8 +31,8 @@ App = {
 
       App.listenForEvents();
 
-      return App.render();
-    });
+      App.render();
+      });
   },
 
   // Listen for events emitted from the contract
@@ -47,7 +47,7 @@ App = {
       }).watch(function(error, event) {
         console.log("event triggered", event)
         // Reload when a new vote is recorded
-        // App.render();
+        App.render();
       });
     });
   },
@@ -73,21 +73,11 @@ App = {
       electionInstance = instance;
       return electionInstance.votingIsStarted();
     }).then(function(votingIsStarted) {
+      formLoader.hide();   
       if(votingIsStarted) {
-        App.contracts.Election.deployed().then(function(instance) {
-          electionInstance = instance;
-          return electionInstance.voters(App.account);
-        }).then(function(hasVoted) {
-          formLoader.hide();
-          if (hasVoted) {
-            formAlreadyVote.show();
-          } else {
-            App.loadCands();
-            formVote.show(); 
-          }
-        });   
+        App.loadCands();
+        formVote.show(); 
       } else { // Start Admin page if the voting didn't start
-        formLoader.hide();   
         formAdmin.show();
       }
     }).catch(function(error) {
@@ -135,21 +125,26 @@ App = {
     electionInstance = instance;
     return electionInstance.candidatesCount();
   }).then(function(candidatesCount) {
-    var candsRow = $('#candsRow');
-    var candTemplate = $('#candTemplate');
+    var candsArray = [];
     for (var i = 1; i <= candidatesCount; i++) {
-      electionInstance.candidates(i).then(function(candidate) {
-        var id = candidate[0];
-        var name = candidate[1];
-        var img = candidate[2];
-        var voteCount = candidate[3];
+      candsArray.push(electionInstance.candidates(i));
+    }
+    Promise.all(candsArray).then(function(candsArray) {
+      var candsRow = $('#candsRow');
+      var candTemplate = $('#candTemplate');
+      candsRow.empty();
+      for (var i = 0; i < candidatesCount; i++) {
+        var id = candsArray[i][0];
+        var name = candsArray[i][1];
+        var img = candsArray[i][2];
+        var voteCount = candsArray[i][3];
         candTemplate.find('.panel-title').text(name);
         candTemplate.find('img').attr('src', img);
         candTemplate.find('.cand-voteCount').text(voteCount);
         candTemplate.find('.btn-vote').attr('data-id', id);
         candsRow.append(candTemplate.html());
-      });
-    }
+      }
+    });
   }).catch(function(error) {
     console.warn(error);
   });
@@ -157,23 +152,36 @@ App = {
 
  handleVote: function(event) {
   event.preventDefault();
-  var candId = parseInt($(event.target).data('id'));
+
   App.contracts.Election.deployed().then(function(instance) {
-    return instance.vote(candId, { from: App.account });
-  }).then(function(result) {
-    App.contracts.Election.deployed().then(async (instance) => {
-      await instance.transfer(instance.address, 100, { from: App.account });
-    })
-    .catch(function(err) {
-      console.error(err);
-    });
-    // Wait for votes to update
-    $("#formVote").hide();
-    $("#formLoader").show();
+    return instance.voters(App.account);
+  }).then(function(hasVoted) {
+    console.log(hasVoted);
+    if (hasVoted) {
+      alert('כבר בחרת - לא ניתן לבחור פעמיים');
+    } else {
+      var candId = parseInt($(event.target).data('id'));
+      App.contracts.Election.deployed().then(function(instance) {
+        return instance.vote(candId, { from: App.account });
+      }).then(function(result) {
+        App.contracts.Election.deployed().then(async (instance) => {
+          await instance.transfer(instance.address, 100, { from: App.account });
+        })
+        .catch(function(err) {
+          console.error(err);
+        });
+        // Wait for votes to update
+        $("#formVote").hide();
+        $("#formLoader").show();
+      }).catch(function(err) {
+        console.error(err);
+      });
+      alert('תודה רבה על ההצבעה');    
+    }
   }).catch(function(err) {
-    console.error(err);
-  });
-  alert('תודה רבה על ההצבעה');
+      console.error(err);
+  });  
+
 },
 };
 
