@@ -18,6 +18,7 @@ App = {
     else {
       App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
       web3 = new Web3(App.web3Provider);
+      console.log(web3);
       return App.initContract();
     }
   },
@@ -57,26 +58,40 @@ App = {
     var formLoader = $("#formLoader");
     var formAdmin = $("#formAdmin");
     var formVote = $("#formVote");
-    var formAlreadyVote = $("#formAlreadyVote");
+    var formResults = $("#formResults");
     
     formLoader.show();   
     formAdmin.hide();
     formVote.hide();
-    formAlreadyVote.hide();
+    formResults.hide();
+    
     web3.eth.getCoinbase(function(err, account) {
       if (err === null) {
         App.account = account;
         $("#accountAddress").html("כתובת החשבון שלך: " + account);
       }
     });
+    
     App.contracts.Election.deployed().then(function(instance) {
       electionInstance = instance;
       return electionInstance.votingIsStarted();
     }).then(function(votingIsStarted) {
       formLoader.hide();   
       if(votingIsStarted) {
-        App.loadCands();
-        formVote.show(); 
+        App.contracts.Election.deployed().then(function(instance) {
+          electionInstance = instance;
+          return electionInstance.timeEnd();
+        }).then(function(timeEnd) {
+          var timeEnd = new Date((timeEnd.c[0] * 1000));
+          var now = new Date();
+          if (now <= timeEnd) {
+            App.loadCands();
+            formVote.show(); 
+          } else {
+            App.loadResults();
+            formResults.show();
+          }
+        });
       } else { // Start Admin page if the voting didn't start
         formAdmin.show();
       }
@@ -156,7 +171,6 @@ App = {
   App.contracts.Election.deployed().then(function(instance) {
     return instance.voters(App.account);
   }).then(function(hasVoted) {
-    console.log(hasVoted);
     if (hasVoted) {
       alert('כבר בחרת - לא ניתן לבחור פעמיים');
     } else {
@@ -181,8 +195,37 @@ App = {
   }).catch(function(err) {
       console.error(err);
   });  
-
 },
+
+loadResults: function(){
+  var electionInstance;
+  App.contracts.Election.deployed().then(function(instance) {
+    electionInstance = instance;
+    return electionInstance.candidatesCount();
+  }).then(function(candidatesCount) {
+
+    var candsArray = [];
+    for (var i = 1; i <= candidatesCount; i++) {
+      candsArray.push(electionInstance.candidates(i));
+    }
+    Promise.all(candsArray).then(function(candsArray) {
+      var candidatesResults = $("#candidatesResults");
+      candidatesResults.empty();
+  
+      for (var i = 0; i < candidatesCount; i++) {
+        var id = candsArray[i][0];
+        var name = candsArray[i][1];
+        var voteCount = candsArray[i][3];
+        var candidateTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td>" + voteCount + "</td></tr>"
+        candidatesResults.append(candidateTemplate);
+      }
+    });
+  }).catch(function(error) {
+    console.warn(error);
+  });
+
+}
+
 };
 
 $(function() { $(window).load(function() { App.init(); }); });

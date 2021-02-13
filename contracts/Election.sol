@@ -49,15 +49,15 @@ contract Election is ERC20 {
         votingIsFinished = true;
     }
 
-    function startVoting(uint _duringTime) public {
+    function startVoting(uint _duringTimeSec) public {
         votingIsStarted = true;
         timeStart = block.timestamp;
-        timeEnd = block.timestamp + _duringTime;
+        timeEnd = block.timestamp + _duringTimeSec;
     }
 
     function vote (uint _candidateId) public {
         // require that it's still time to vote
-        require(timeEnd <= block.timestamp, "Time expired");
+        require(block.timestamp <= timeEnd, "Time expired");
 
         // require that they allowed to vote
         require(allowVoters[msg.sender], "Not allowed to vote");
