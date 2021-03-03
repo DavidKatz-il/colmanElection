@@ -1,4 +1,4 @@
-# colmanElection
+# colmanElection (Blockchain course project)
 
 An election platform used to vote for the teacher of the year
 A Blockchain network that uses:
@@ -13,7 +13,7 @@ Smart contracts were written in 'Solidity'
 * [MetaMask](https://metamask.io/)
 
 
-##### Projects based on
+##### The Project is based on:
 - [election](https://github.com/dappuniversity/election)
 - [pet shop](https://github.com/truffle-box/pet-shop-box)
 
