@@ -1,19 +1,28 @@
-# colmanElection (Blockchain course project)
+# colmanElection
+## Introduction
+A project of `Blockchain` course.   
+The project demonstrates an election platform used to vote for the teacher of the year in the Blockchain network included working with:
+* Smart contracts (with currency based on `ERC20`) written in 'Solidity'.
+* Allows admins to add a list of voters and candidates.
+* Admins can also set a time for the vote to conclude.
 
-An election platform used to vote for the teacher of the year
-A Blockchain network that uses:
-* Smart contracts (with the ERC20 currency)
-* Allows admins to add list of voters and candidates
-* Admins can also set time for vote to conclude
+## Installation
+1. Download and Install:
+    1. [NodeJS](https://nodejs.org/en/download/)
+    2. [Ganache](https://www.trufflesuite.com/ganache/) - personal Ethereum blockchain
+    3. [MetaMask](https://metamask.io/download.html) - crypto wallet
+2. Install Truffle globally: `npm install -g truffle`
+3. Run the following commands from within the project folder:
+    1. `truffle compile`
+    1. `truffle migrate`
+    2. `npm run dev`
 
-Smart contracts were written in 'Solidity'
-#### Other programs used
-* [Truffle](https://www.trufflesuite.com/)
-* [Ganache](https://www.trufflesuite.com/ganache)
-* [MetaMask](https://metamask.io/)
+
+### The Project is based on:
+* [election](https://github.com/dappuniversity/election)
+* [pet-shop-box](https://github.com/truffle-box/pet-shop-box)
 
 
-##### The Project is based on:
-- [election](https://github.com/dappuniversity/election)
-- [pet shop](https://github.com/truffle-box/pet-shop-box)
-
+### Authors
+* [David Katz](https://github.com/DavidKatz-il)
+* [Tzvi Dissen](https://github.com/TheTzvi)
